@@ -21,3 +21,7 @@ Once the dependencies are installed, CFM can be installed:
 ```
 pip install .
 ``` 
+
+#Model creation
+The CFM relies on existing time series models to create predictions that are compared with near-real time data. At the moment, these models can be created using the YATSM package (https://github.com/ceholden/yatsm), or when using MODIS data, a specific version of YATSM altered to filter images by view angle (https://github.com/bullocke/yatsm/tree/NRT). 
+

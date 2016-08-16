@@ -24,7 +24,6 @@ WARN_ON_EMPTY = False
 @options.arg_config_file
 @options.arg_date(var='start_date', metavar='<start_date>')
 @options.arg_date(var='end_date', metavar='<end_date>')
-@options.arg_date(var='monitor_date', metavar='<monitor_date>')
 @options.arg_output
 @options.opt_date_format
 @options.opt_exampleimg
@@ -37,17 +36,17 @@ WARN_ON_EMPTY = False
 
 @click.pass_context
 
-def monitor_map(cfx, config, start_date, end_date, monitor_date, output,
+def monitor_map(cfx, config, start_date, end_date, output,
                date_frmt, image, detect, stable, shapefile):
     """
     Examples: TODO
     """
-    make_map(config, start_date, end_date, monitor_date, output,
+    make_map(config, start_date, end_date, output,
                date_frmt, image, detect, stable, shapefule)
 
 
 
-def make_map(config, start_date, end_date, monitor_date, output,
+def make_map(config, start_date, end_date, output,
                date_frmt, image, detect, stable, shapefile):
 
 
@@ -57,14 +56,6 @@ def make_map(config, start_date, end_date, monitor_date, output,
     ndv = 0 #TODO: Hard-coded
     start_date = start_date.toordinal()
     end_date = end_date.toordinal()
-    monitor_date = monitor_date.toordinal()
-#    frmt = '%Y%j' #TODO
-    #Need to incorporate this into monitor script correctly
-#    start_date = dt.strptime(str(start_date), frmt).toordinal()
-#    end_date = dt.strptime(str(end_date), frmt).toordinal()
-#    monitor_date = dt.strptime(str(monitor_date), frmt).toordinal()
-
-    #start_date, end_date = start_date.toordinal(), end_date.toordinal()
 
     try:
         image_ds = gdal.Open(image, gdal.GA_ReadOnly)
@@ -73,7 +64,7 @@ def make_map(config, start_date, end_date, monitor_date, output,
         raise
 
     changemap = get_NRT_class(
-            config, start_date, end_date, monitor_date, detect,image_ds,
+            config, start_date, end_date, detect,image_ds,
             stable, ndv=ndv
         )
     band_names=['class']

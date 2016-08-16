@@ -14,5 +14,6 @@ setup(name='cfm',
       cfm=cfm.cli.main:cli
       [cfm.cfm_commands]
       monitor=cfm.cli.monitor:monitor
+      monitor_map=cfm.cli.monitor_map:monitor_map
       ''',
       )
