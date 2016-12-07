@@ -10,7 +10,7 @@ from osgeo import gdal, osr, ogr
 import click
 from ..config_parser import parse_config_file
 import options
-from ..utils import find_results, iter_records, write_output
+from ..utils import design_to_indices, find_results, iter_records, write_output
 gdal.AllRegister()
 gdal.UseExceptions()
 
@@ -42,7 +42,7 @@ def monitor_map(cfx, config, start_date, end_date, output,
     Examples: TODO
     """
     make_map(config, start_date, end_date, output,
-               date_frmt, image, detect, stable, shapefule)
+               date_frmt, image, detect, stable, shapefile)
 
 
 
@@ -122,7 +122,7 @@ def write_shapefile(changemap, output, image_ds, gdal_frmt, ndv, band_names):
     dst_layer = None
 
 
-def get_NRT_class(cfg, start, end, monitor,detect,image_ds,stable,
+def get_NRT_class(cfg, start, end,detect,image_ds,stable,
             ndv=-9999):
     """ Output a raster with forest/non forest/deforestation classes for time period specied.
         Legend values:
@@ -143,7 +143,8 @@ def get_NRT_class(cfg, start, end, monitor,detect,image_ds,stable,
     # Find result attributes to extract
     i_bands, i_coefs, use_rmse, coef_names, _, _ = find_result_attributes(
         records,ndvi, 'all', prefix=prefix)
-
+#    import pdb; pdb.set_trace()
+    #Somewhere in find_result_attributes
     n_bands = len(i_bands)
     n_coefs = len(i_coefs)
     n_rmse = n_bands
@@ -250,4 +251,37 @@ def find_result_attributes(results, bands, coefs, prefix=''):
             continue
         else:
             break
+
+    if n_coefs is None or n_bands is None:
+        logger.error('Could not determine the number of coefficients or bands')
+        raise click.Abort()
+    if design is None:
+        logger.error('Design matrix specification not found in results.')
+        raise click.Abort()
+
+    # How many bands does the user want?
+    if bands == 'all':
+        i_bands = range(0, n_bands)
+    else:
+        # NumPy index on 0; GDAL on 1 -- so subtract 1
+        i_bands = [b - 1 for b in bands]
+        if any([b > n_bands for b in i_bands]):
+            logger.error('Bands specified exceed size of bands in results')
+            raise click.Abort()
+
+    # How many coefficients did the user want?
+    use_rmse = False
+    if coefs:
+        if 'rmse' in coefs or 'all' in coefs:
+            use_rmse = True
+        i_coefs, coef_names = design_to_indices(design, coefs)
+    else:
+        i_coefs, coef_names = None, None
+
+    logger.debug('Bands: {0}'.format(i_bands))
+    if coefs:
+        logger.debug('Coefficients: {0}'.format(i_coefs))
+
+    return (i_bands, i_coefs, use_rmse, coef_names, design_str, design)
+
 

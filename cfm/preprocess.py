@@ -8,7 +8,9 @@ import os
 import time
 from shutil import copyfile
 from utils import *
-from .cli import options
+from cfm.cli import options
+#from options import *
+#import options
 from config_parser import parse_config_file
 
 @click.command(short_help='Download and pre-process MODIS data in NRT')

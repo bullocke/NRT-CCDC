@@ -41,25 +41,10 @@ def convert_config(cfg):
                              (len(maxes), n_bands))
         cfg['dataset']['max_values'] = np.asarray(maxes)
 
-   # import pdb; pdb.set_trace()
-    # Unpickle main predictor
-    #import pdb; pdb.set_trace()
-    cfg['YATSM']['prediction_object'] = _unpickle_predictor(
-        cfg[cfg['YATSM']['prediction']]['pickle'])
 
     # Unpickle refit objects
-    if 'refit' in cfg['YATSM']:
-        pickles = []
-        for predictor in cfg['YATSM']['refit']['prediction']:
-            if predictor not in cfg:
-                raise KeyError('Refit predictor specified (%s) not specified '
-                               'as section in config file' % predictor)
-            pickle_file = cfg[predictor]['pickle']
-            pickles.append(_unpickle_predictor(pickle_file))
-        cfg['YATSM']['refit']['prediction_object'] = pickles
-    else:
-        refit = dict(prefix=[], prediction=[], prediction_object=[])
-        cfg['YATSM']['refit'] = refit
+    refit = dict(prefix=[], prediction=[], prediction_object=[])
+    cfg['YATSM']['refit'] = refit
 
     return cfg
 
@@ -107,19 +92,6 @@ def parse_config_file(config_file):
 
     return convert_config(cfg)
 
-
-def _unpickle_predictor(pickle):
-    # Load sklearn objects
-    reg = joblib.load(pickle)
-
-    sklearn_attrs = ['fit', 'predict', 'get_params', 'set_params']
-    if all([m in dir(reg) for m in sklearn_attrs]):
-        return reg
-    else:
-        raise AttributeError('Cannot use prediction object from %s. Prediction'
-                             ' objects must define the following attributes:\n'
-                             '%s'
-                             % (pickle, ', '.join(sklearn_attrs)))
 
 
 def expand_envvars(d):
